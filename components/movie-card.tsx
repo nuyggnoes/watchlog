@@ -1,18 +1,14 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Star, Bookmark, Heart } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+"use client";
 
-interface MovieCardProps {
-  id: string
-  title: string
-  posterPath: string
-  releaseDate: string
-  rating: number
-  className?: string
-  isLiked?: boolean
-  isBookmarked?: boolean
+import Image from "next/image";
+import Link from "next/link";
+import { Star, Bookmark, Heart } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import type { Movie } from "@/types/movie";
+
+interface MovieCardProps extends Movie {
+  className?: string;
 }
 
 export function MovieCard({
@@ -25,7 +21,7 @@ export function MovieCard({
   isLiked = false,
   isBookmarked = false,
 }: MovieCardProps) {
-  const year = new Date(releaseDate).getFullYear()
+  const year = new Date(releaseDate).getFullYear();
 
   return (
     <div className={cn("group relative overflow-hidden rounded-lg", className)}>
@@ -67,5 +63,5 @@ export function MovieCard({
         </div>
       </div>
     </div>
-  )
+  );
 }
