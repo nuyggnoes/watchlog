@@ -21,7 +21,7 @@ export function MovieCard({
   isLiked = false,
   isBookmarked = false,
 }: MovieCardProps) {
-  const year = new Date(releaseDate).getFullYear();
+  const year = releaseDate ? new Date(releaseDate).getFullYear() : "Unknown";
 
   return (
     <div className={cn("group relative overflow-hidden rounded-lg", className)}>
