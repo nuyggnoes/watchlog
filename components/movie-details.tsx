@@ -1,10 +1,10 @@
-import Image from "next/image"
-import { Star, Clock, Calendar, Heart, Bookmark, Share2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import Image from "next/image";
+import { Star, Clock, Calendar, Heart, Bookmark, Share2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface MovieDetailsProps {
-  id: string
+  id: string;
 }
 
 export function MovieDetails({ id }: MovieDetailsProps) {
@@ -25,7 +25,7 @@ export function MovieDetails({ id }: MovieDetailsProps) {
     cast: ["Timothée Chalamet", "Zendaya", "Rebecca Ferguson", "Josh Brolin"],
     isLiked: false,
     isBookmarked: true,
-  }
+  };
 
   return (
     <div className="relative">
@@ -113,5 +113,5 @@ export function MovieDetails({ id }: MovieDetailsProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import {
   Sheet,
   SheetContent,
@@ -12,24 +12,74 @@ import {
   SheetTitle,
   SheetTrigger,
   SheetFooter,
-} from "@/components/ui/sheet"
-import { SlidersHorizontal, X } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/sheet";
+import { SlidersHorizontal, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { getYear } from "@/lib/date";
 
-export function FilterBar() {
-  const [activeFilters, setActiveFilters] = useState<string[]>([])
-  const [ratingRange, setRatingRange] = useState([0, 10])
-  const [yearRange, setYearRange] = useState([1970, 2024])
+interface Filters {
+  sortBy: string;
+  ratingRange: [number, number];
+  yearRange: [number, number];
+  language: string;
+}
+
+interface FilterBarProps {
+  sort: string;
+  onSortChange: (value: string) => void;
+  filters: Filters;
+  onApplyFilters: (filters: Filters) => void;
+}
+
+export function FilterBar({ sort, filters, onSortChange, onApplyFilters }: FilterBarProps) {
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [draftFilters, setDraftFilters] = useState(filters);
+  const year = getYear();
+
+  const updateDraft = (field: keyof Filters, value: any) => {
+    setDraftFilters((prev) => ({ ...prev, [field]: value }));
+  };
 
   const clearFilters = () => {
-    setActiveFilters([])
-    setRatingRange([0, 10])
-    setYearRange([1970, 2024])
-  }
+    const reset: Filters = {
+      sortBy: "popularity",
+      ratingRange: [0, 10],
+      yearRange: [year - 3, year],
+      language: "",
+    };
+    setDraftFilters(reset);
+    setActiveFilters([]);
+    onApplyFilters(reset);
+  };
 
   const removeFilter = (filter: string) => {
-    setActiveFilters(activeFilters.filter((f) => f !== filter))
-  }
+    setActiveFilters((prev) => prev.filter((f) => f !== filter));
+
+    const updated = { ...draftFilters };
+
+    if (filter.startsWith("Sort:")) {
+      updated.sortBy = "popularity";
+    } else if (filter.startsWith("Rating:")) {
+      updated.ratingRange = [0, 10];
+    } else if (filter.startsWith("Year:")) {
+      updated.yearRange = [1970, 2025];
+    } else if (filter.startsWith("Lang:")) {
+      updated.language = "";
+    }
+
+    setDraftFilters(updated);
+    onApplyFilters(updated);
+  };
+
+  const handleFilter = () => {
+    onApplyFilters(draftFilters);
+    setActiveFilters([
+      `Sort: ${draftFilters.sortBy}`,
+      `Rating: ${draftFilters.ratingRange.join(" ~ ")}`,
+      `Year: ${draftFilters.yearRange.join(" ~ ")}`,
+      `Lang: ${draftFilters.language}`,
+    ]);
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -51,7 +101,10 @@ export function FilterBar() {
               <div className="py-6 space-y-6">
                 <div className="space-y-2">
                   <h3 className="text-sm font-medium">Sort By</h3>
-                  <Select defaultValue="popularity">
+                  <Select
+                    defaultValue="popularity"
+                    value={draftFilters.sortBy}
+                    onValueChange={(val) => updateDraft("sortBy", val)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
@@ -68,16 +121,16 @@ export function FilterBar() {
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-medium">Rating</h3>
                     <span className="text-xs text-muted-foreground">
-                      {ratingRange[0]} - {ratingRange[1]}
+                      {draftFilters.ratingRange[0]} - {draftFilters.ratingRange[1]}
                     </span>
                   </div>
                   <Slider
                     defaultValue={[0, 10]}
                     min={0}
                     max={10}
-                    step={0.5}
-                    value={ratingRange}
-                    onValueChange={setRatingRange}
+                    step={1}
+                    value={draftFilters.ratingRange}
+                    onValueChange={(val) => updateDraft("ratingRange", val)}
                   />
                 </div>
 
@@ -85,22 +138,25 @@ export function FilterBar() {
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-medium">Release Year</h3>
                     <span className="text-xs text-muted-foreground">
-                      {yearRange[0]} - {yearRange[1]}
+                      {draftFilters.yearRange[0]} - {draftFilters.yearRange[1]}
                     </span>
                   </div>
                   <Slider
-                    defaultValue={[1970, 2024]}
+                    defaultValue={[1970, 2025]}
                     min={1900}
-                    max={2024}
+                    max={2025}
                     step={1}
-                    value={yearRange}
-                    onValueChange={setYearRange}
+                    value={draftFilters.yearRange}
+                    onValueChange={(val) => updateDraft("yearRange", val)}
                   />
                 </div>
 
                 <div className="space-y-2">
                   <h3 className="text-sm font-medium">Language</h3>
-                  <Select defaultValue="en">
+                  <Select
+                    defaultValue="ko"
+                    value={draftFilters.language}
+                    onValueChange={(val) => updateDraft("language", val)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Language" />
                     </SelectTrigger>
@@ -119,12 +175,12 @@ export function FilterBar() {
                 <Button variant="outline" onClick={clearFilters}>
                   Reset Filters
                 </Button>
-                <Button>Apply Filters</Button>
+                <Button onClick={handleFilter}>Apply Filters</Button>
               </SheetFooter>
             </SheetContent>
           </Sheet>
 
-          <Select defaultValue="popularity">
+          <Select defaultValue="popularity" value={sort} onValueChange={onSortChange}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
@@ -137,7 +193,7 @@ export function FilterBar() {
           </Select>
         </div>
 
-        <div className="text-sm text-muted-foreground">1,245 movies</div>
+        {/* <div className="text-sm text-muted-foreground">1,245 movies</div> */}
       </div>
 
       {activeFilters.length > 0 && (
@@ -158,5 +214,5 @@ export function FilterBar() {
         </div>
       )}
     </div>
-  )
+  );
 }
