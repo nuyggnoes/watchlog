@@ -1,4 +1,4 @@
-import type { HeroMovie, Movie, TMDBMovie } from "@/types/movie";
+import type { HeroMovie, Movie, TMDBMovie, TMDBVideoResponse } from "@/types/movie";
 
 export async function fetchPopularMovies(): Promise<Movie[]> {
     const res = await fetch(`https://api.themoviedb.org/3/movie/popular?language=ko-KR&page=1`, {
@@ -24,24 +24,45 @@ export async function fetchPopularMovies(): Promise<Movie[]> {
     }));
 }
 
-export async function fetchHeroMovie():Promise<HeroMovie> {
-    const res = await fetch(`https://api.themoviedb.org/3/movie/popular?language=ko-KR&page=1`, {
-        headers: {
+export async function fetchHeroMovie(): Promise<HeroMovie> {
+    const headers = {
         Authorization: `Bearer ${process.env.TMDB_BEARER_TOKEN}`,
-        accept: 'application/json',
-        },
-    });
+        accept: "application/json",
+    };
 
-    const data = await res.json();
-    const top = data.results[0];
+    const BASE_IMAGE_URL = "https://image.tmdb.org/t/p/original";
+
+    const popularRes = await fetch(
+        `https://api.themoviedb.org/3/movie/popular?language=ko-KR&page=1`,
+        { headers }
+    );
+    const popularData = await popularRes.json();
+    const topMovie = popularData.results[0];
+
+    if (!topMovie) {
+        throw new Error("No popular movie found");
+    }
+
+    const videosRes = await fetch(
+        `https://api.themoviedb.org/3/movie/${topMovie.id}/videos?language=ko-KR`,
+        { headers }
+    );
+    const videosData:TMDBVideoResponse = await videosRes.json();
+
+    const trailer = videosData.results.find(
+        (video) => video.type === "Trailer" && video.site === "YouTube"
+    );
 
     return {
-        id: top.id,
-        title: top.title,
-        backdrop_path: `https://image.tmdb.org/t/p/original${top.backdrop_path}`,
-        vote_average: top.vote_average,
-        overview: top.overview,
-    }
+        id: topMovie.id,
+        title: topMovie.title,
+        overview: topMovie.overview,
+        vote_average: topMovie.vote_average,
+        backdrop_path: topMovie.backdrop_path
+        ? `${BASE_IMAGE_URL}${topMovie.backdrop_path}`
+        : "/placeholder.svg",
+        trailer: trailer ? `https://www.youtube.com/embed/${trailer.key}` : null,
+    };
 }
 
 interface FilterParams {

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Play, Star } from "lucide-react";
 import { fetchHeroMovie } from "@/lib/movie/movie";
+import { TrailerButton } from "./\btrailer-button";
 
 export async function HeroSection() {
   const movie = await fetchHeroMovie();
@@ -23,10 +24,11 @@ export async function HeroSection() {
         <h1 className="text-3xl md:text-5xl font-bold text-white mb-3">{movie.title}</h1>
         <p className="text-white/80 max-w-2xl mb-6 line-clamp-2 md:line-clamp-3">{movie.overview}</p>
         <div className="flex flex-wrap gap-3">
-          <Button size="lg" className="gap-2">
+          {/* <Button size="lg" className="gap-2">
             <Play className="h-4 w-4" />
             Watch Trailer
-          </Button>
+          </Button> */}
+          {movie.trailer && <TrailerButton trailerUrl={movie.trailer} />}
           <Link href={`/movies/${movie.id}`}>
             <Button variant="outline" size="lg">
               View Details

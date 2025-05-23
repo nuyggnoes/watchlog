@@ -6,22 +6,16 @@ import { Star, Bookmark, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { Movie } from "@/types/movie";
+import { useState } from "react";
 
 interface MovieCardProps extends Movie {
   className?: string;
 }
 
-export function MovieCard({
-  id,
-  title,
-  posterPath,
-  releaseDate,
-  rating,
-  className,
-  isLiked = false,
-  isBookmarked = false,
-}: MovieCardProps) {
+export function MovieCard({ id, title, posterPath, releaseDate, rating, className }: MovieCardProps) {
   const year = releaseDate ? new Date(releaseDate).getFullYear() : "Unknown";
+  const [isLiked, setIsLiked] = useState(true);
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
   return (
     <div className={cn("group relative overflow-hidden rounded-lg", className)}>

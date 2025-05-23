@@ -13,6 +13,7 @@ import { getYear } from "@/lib/date";
 export default function MoviesPage() {
   const year = getYear();
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     sortBy: "popularity",
     ratingRange: [0, 10] as [number, number],
@@ -31,10 +32,13 @@ export default function MoviesPage() {
       `&ratingMin=${ratingRange[0]}&ratingMax=${ratingRange[1]}` +
       `&yearMin=${yearRange[0]}&yearMax=${yearRange[1]}` +
       `&language=${language}`;
-
+    setLoading(true);
     fetch(url)
       .then((res) => res.json())
-      .then(setMovies);
+      .then((data) => {
+        setMovies(data);
+        setLoading(false);
+      });
   }, [filters, currentPage]);
 
   return (
@@ -51,7 +55,7 @@ export default function MoviesPage() {
         onApplyFilters={setFilters}
       />
 
-      {movies.length === 0 ? (
+      {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
           {Array.from({ length: 13 }).map((_, i) => (
             <MovieCardSkeleton key={i} />
