@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     const yearMax = url.get("yearMax") ?? "2025";
     const language = url.get("language") ?? "";
     
-    const movies = await fetchFilteredMovies({
+    const res = await fetchFilteredMovies({
         sort,
         page,
         ratingMin,
@@ -22,5 +22,5 @@ export async function GET(req: NextRequest) {
         yearMax,
         language,
     });
-    return NextResponse.json(movies);
+    return NextResponse.json(res);
 }

@@ -1,17 +1,18 @@
-import Link from "next/link"
-import { Search, User, LogIn } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
-import { ThemeToggle } from "@/components/theme-toggle"
+import Link from "next/link";
+import { Search, User, LogIn } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { SearchBar } from "./search-bar";
 
 interface DesktopNavbarProps {
-  className?: string
+  className?: string;
 }
 
 export function DesktopNavbar({ className }: DesktopNavbarProps) {
   // For demo purposes, assume user is not logged in
-  const isLoggedIn = false
+  const isLoggedIn = false;
 
   return (
     <header className={cn("w-full border-b bg-background", className)}>
@@ -34,10 +35,11 @@ export function DesktopNavbar({ className }: DesktopNavbarProps) {
         </div>
 
         <div className="flex items-center gap-4">
-          <form className="hidden md:flex relative w-64">
+          {/* <form className="hidden md:flex relative w-64">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input type="search" placeholder="Search movies..." className="pl-8 w-full" />
-          </form>
+          </form> */}
+          <SearchBar isMobile={false} />
 
           <ThemeToggle />
 
@@ -58,5 +60,5 @@ export function DesktopNavbar({ className }: DesktopNavbarProps) {
         </div>
       </div>
     </header>
-  )
+  );
 }

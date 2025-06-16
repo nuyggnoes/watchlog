@@ -20,6 +20,7 @@ export default function MoviesPage() {
     yearRange: [year - 3, year] as [number, number],
     language: "",
   });
+  const [totalPage, setTotalPage] = useState(0);
 
   const searchParams = useSearchParams();
   const currentPage = Number(searchParams.get("page") ?? 1);
@@ -36,7 +37,8 @@ export default function MoviesPage() {
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        setMovies(data);
+        setTotalPage(data.totalPages);
+        setMovies(data.movies);
         setLoading(false);
       });
   }, [filters, currentPage]);
@@ -57,7 +59,7 @@ export default function MoviesPage() {
 
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-          {Array.from({ length: 13 }).map((_, i) => (
+          {Array.from({ length: 20 }).map((_, i) => (
             <MovieCardSkeleton key={i} />
           ))}
         </div>
@@ -65,7 +67,7 @@ export default function MoviesPage() {
         <MovieGrid movies={movies} />
       )}
 
-      <Pagination totalPages={10} currentPage={currentPage} />
+      <Pagination totalPages={totalPage} currentPage={currentPage} />
     </div>
   );
 }
