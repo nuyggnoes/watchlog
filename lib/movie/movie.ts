@@ -83,7 +83,11 @@ export async function fetchFilteredMovies({
     yearMin,
     yearMax,
     language,
-}: FilterParams): Promise<Movie[]> {
+}: FilterParams): Promise<{
+  movies: Movie[];
+  totalPages: number;
+  totalResults: number;
+}>  {
     const query = new URLSearchParams({
         sort_by: sort,
         include_adult: "false",
@@ -110,16 +114,18 @@ export async function fetchFilteredMovies({
     }
 
     const data = await res.json();
-
-    return (data.results as TMDBMovie[]).map((movie) => ({
+    
+    const movies = (data.results as TMDBMovie[]).map((movie) => ({
         id: movie.id.toString(),
         title: movie.title,
         posterPath: movie.poster_path
-        ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
-        : "/placeholder.svg?height=450&width=300",
+            ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
+            : "/placeholder.svg?height=450&width=300",
         releaseDate: movie.release_date,
         rating: movie.vote_average,
         isLiked: false,
         isBookmarked: false,
     }));
+
+    return {movies, totalPages:data.total_pages, totalResults:data.total_results};
 }
