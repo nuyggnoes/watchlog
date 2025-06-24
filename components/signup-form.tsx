@@ -1,24 +1,23 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export function SignupForm() {
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // This would normally send the signup request to an API
-    console.log({ name, email, password, confirmPassword })
-  }
+    console.log({ name, email, password, confirmPassword });
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -69,23 +68,9 @@ export function SignupForm() {
         />
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Checkbox id="terms" required />
-        <Label htmlFor="terms" className="text-sm font-normal">
-          I agree to the{" "}
-          <a href="#" className="text-primary hover:underline">
-            Terms of Service
-          </a>{" "}
-          and{" "}
-          <a href="#" className="text-primary hover:underline">
-            Privacy Policy
-          </a>
-        </Label>
-      </div>
-
       <Button type="submit" className="w-full">
         Create Account
       </Button>
     </form>
-  )
+  );
 }

@@ -1,8 +1,6 @@
-import { LoginForm } from "@/components/login-form"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { SignupForm } from "@/components/signup-form"
-import Link from "next/link"
+import { LoginForm } from "@/components/login-form";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SignupForm } from "@/components/signup-form";
 
 export default function LoginPage() {
   return (
@@ -24,33 +22,6 @@ export default function LoginPage() {
           <SignupForm />
         </TabsContent>
       </Tabs>
-
-      <div className="flex items-center my-8">
-        <div className="flex-grow h-px bg-border"></div>
-        <span className="px-3 text-muted-foreground text-sm">OR</span>
-        <div className="flex-grow h-px bg-border"></div>
-      </div>
-
-      <div className="space-y-3">
-        <Button variant="outline" className="w-full">
-          Continue with Google
-        </Button>
-        <Button variant="outline" className="w-full">
-          Continue with GitHub
-        </Button>
-      </div>
-
-      <p className="text-center text-sm text-muted-foreground mt-8">
-        By continuing, you agree to our{" "}
-        <Link href="#" className="underline underline-offset-4 hover:text-primary">
-          Terms of Service
-        </Link>{" "}
-        and{" "}
-        <Link href="#" className="underline underline-offset-4 hover:text-primary">
-          Privacy Policy
-        </Link>
-        .
-      </p>
     </div>
-  )
+  );
 }
