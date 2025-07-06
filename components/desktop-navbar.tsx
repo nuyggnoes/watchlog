@@ -5,14 +5,16 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SearchBar } from "./search-bar";
+import { cookies } from "next/headers";
 
 interface DesktopNavbarProps {
   className?: string;
 }
 
-export function DesktopNavbar({ className }: DesktopNavbarProps) {
-  // For demo purposes, assume user is not logged in
-  const isLoggedIn = false;
+export async function DesktopNavbar({ className }: DesktopNavbarProps) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("access_token")?.value;
+  const isLoggedIn = !!token;
 
   return (
     <header className={cn("w-full border-b bg-background", className)}>
