@@ -1,9 +1,17 @@
-import { ProfileHeader } from "@/components/profile-header"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MovieGrid } from "@/components/movie-grid"
-import { ReviewList } from "@/components/review-list"
+import { ProfileHeader } from "@/components/profile-header";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MovieGrid } from "@/components/movie-grid";
+import { ReviewList } from "@/components/review-list";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function ProfilePage() {
+export default async function ProfilePage() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("access_token")?.value;
+
+  if (!token) {
+    redirect("/login");
+  }
   return (
     <div className="space-y-8">
       <ProfileHeader />
@@ -25,5 +33,5 @@ export default function ProfilePage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

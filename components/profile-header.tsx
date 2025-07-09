@@ -1,8 +1,23 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Settings, Film, Star } from "lucide-react"
+"use client";
+
+import { HTTP_METHOD } from "@/app/api/constants";
+import { API_ENDPOINTS } from "@/app/api/endpoints";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { apiRequest } from "@/lib/utils/api";
+import { useUserState } from "@/stores/userStore";
+import { Settings, Film, Star } from "lucide-react";
 
 export function ProfileHeader() {
+  const logout = useUserState((s) => s.logout);
+
+  const handleLogout = async () => {
+    await apiRequest(API_ENDPOINTS.USER_LOGOUT, {
+      method: HTTP_METHOD.POST,
+    });
+    logout();
+    window.location.replace("/");
+  };
   return (
     <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
       <Avatar className="w-24 h-24 border-4 border-background">
@@ -36,6 +51,9 @@ export function ProfileHeader() {
         <Settings className="h-4 w-4" />
         Edit Profile
       </Button>
+      <Button variant="destructive" size="sm" className="gap-2" onClick={handleLogout}>
+        LogOut
+      </Button>
     </div>
-  )
+  );
 }

@@ -4,6 +4,7 @@ export enum ErrorType {
   SIGNUP_FAIL = "SIGNUP_FAIL",
   PROFILE_SAVE_FAIL = "PROFILE_SAVE_FAIL",
   UNEXPECTED_ERROR = "UNEXPECTED_ERROR",
+  LOGIN_ERROR = "LOGIN_ERROR",
 }
 
 export const ErrorResponseMap: Record<ErrorType, { name: string; message: string; status: number }> = {
@@ -32,4 +33,9 @@ export const ErrorResponseMap: Record<ErrorType, { name: string; message: string
     message: "예기치 못한 오류가 발생했습니다.",
     status: 500,
   },
+  [ErrorType.LOGIN_ERROR]: {
+    name: 'login',
+    message: "이메일 또는 비밀번호가 틀렸습니다.",
+    status:404,
+  }
 }
