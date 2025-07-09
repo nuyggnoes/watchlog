@@ -16,9 +16,22 @@ export async function apiRequest<T>(url: string, options: ApiRequestOptions = {}
   });
 
   const result = await res.json();
-  return {
-    ok: res.ok,
-    status: res.status,
-    ...result,
-  };
+  if (res.ok) {
+    // 성공
+    return {
+      ok: true,
+      status: res.status,
+      success: true,
+      data: result.data ?? result,
+    };
+  } else {
+    // 실패
+    return {
+      ok: false,
+      status: res.status,
+      success: false,
+      errors: result.errors,
+      code: result.code,
+    };
+  }
 }

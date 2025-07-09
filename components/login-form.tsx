@@ -8,9 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 import useLogin from "@/hooks/useLogin";
+import LoadingOverLay from "./ui/loading-overlay";
 
 export function LoginForm() {
-  const { form, errors, handleSubmit, handleChange } = useLogin();
+  const { form, loading, errors, handleSubmit, handleChange } = useLogin();
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -52,10 +53,16 @@ export function LoginForm() {
           Remember me
         </Label>
       </div>
-
-      <Button type="submit" className="w-full">
+      {loading ? (
+        <LoadingOverLay />
+      ) : (
+        <Button type="submit" disabled={loading} className="w-full">
+          Sign In
+        </Button>
+      )}
+      {/* <Button type="submit" disabled={loading} className="w-full">
         Sign In
-      </Button>
+      </Button> */}
     </form>
   );
 }
