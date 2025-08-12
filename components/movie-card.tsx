@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { Movie } from "@/types/movie";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface MovieCardProps extends Movie {
   className?: string;
@@ -14,8 +15,19 @@ interface MovieCardProps extends Movie {
 
 export function MovieCard({ id, title, posterPath, releaseDate, rating, className }: MovieCardProps) {
   const year = releaseDate ? new Date(releaseDate).getFullYear() : "Unknown";
-  const [isLiked, setIsLiked] = useState(true);
+  const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const router = useRouter();
+
+  const handleLike = async (id: string) => {
+    console.log("[handleList]LIKE id:", id);
+    const res = await fetch(`/api/movies/${id}/like`, { method: "POST" });
+    const json = await res.json();
+    setIsLiked(json.isLiked);
+  };
+  const handleBookmark = (id: string) => {
+    console.log("BOOKMARK id:", id);
+  };
 
   return (
     <div className={cn("group relative overflow-hidden rounded-lg", className)}>
@@ -45,11 +57,19 @@ export function MovieCard({ id, title, posterPath, releaseDate, rating, classNam
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:text-rose-500 hover:bg-transparent">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-white hover:text-rose-500 hover:bg-transparent"
+              onClick={() => handleLike(id)}>
               <Heart className={cn("h-4 w-4", isLiked && "fill-rose-500 text-rose-500")} />
               <span className="sr-only">Like</span>
             </Button>
-            <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:text-blue-500 hover:bg-transparent">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-white hover:text-blue-500 hover:bg-transparent"
+              onClick={() => handleBookmark(id)}>
               <Bookmark className={cn("h-4 w-4", isBookmarked && "fill-blue-500 text-blue-500")} />
               <span className="sr-only">Bookmark</span>
             </Button>
