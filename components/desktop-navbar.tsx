@@ -6,15 +6,20 @@ import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SearchBar } from "./search-bar";
 import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/serverClient";
 
 interface DesktopNavbarProps {
   className?: string;
 }
 
 export async function DesktopNavbar({ className }: DesktopNavbarProps) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
-  const isLoggedIn = !!token;
+  const cookieStore = cookies();
+  const supabase = await createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const isLoggedIn = !!session;
 
   return (
     <header className={cn("w-full border-b bg-background", className)}>
