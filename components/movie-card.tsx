@@ -6,27 +6,53 @@ import { Star, Bookmark, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { Movie } from "@/types/movie";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 interface MovieCardProps extends Movie {
   className?: string;
+  isLiked?: boolean;
 }
 
-export function MovieCard({ id, title, posterPath, releaseDate, rating, className }: MovieCardProps) {
+export function MovieCard({
+  id,
+  title,
+  posterPath,
+  releaseDate,
+  rating,
+  className,
+  isLiked: initialIsLiked = false,
+}: MovieCardProps) {
   const year = releaseDate ? new Date(releaseDate).getFullYear() : "Unknown";
-  const [isLiked, setIsLiked] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const router = useRouter();
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
+  const requireAuth = useRequireAuth();
+
+  useEffect(() => {
+    setIsLiked(initialIsLiked);
+  }, [initialIsLiked]);
 
   const handleLike = async (id: string) => {
-    console.log("[handleList]LIKE id:", id);
-    const res = await fetch(`/api/movies/${id}/like`, { method: "POST" });
-    const json = await res.json();
-    setIsLiked(json.isLiked);
-  };
-  const handleBookmark = (id: string) => {
-    console.log("BOOKMARK id:", id);
+    const session = await requireAuth();
+    if (!session) return;
+
+    const previousState = isLiked;
+
+    setIsLiked(!isLiked);
+
+    try {
+      const res = await fetch(`/api/movies/${id}/like`, { method: "POST" });
+      const json = await res.json();
+
+      if (!json.ok) {
+        setIsLiked(previousState);
+        console.error("좋아요 처리 실패:", json.message);
+      } else {
+        setIsLiked(json.isLiked);
+      }
+    } catch (error) {
+      setIsLiked(previousState);
+      console.error("네트워크 오류:", error);
+    }
   };
 
   return (
@@ -65,14 +91,14 @@ export function MovieCard({ id, title, posterPath, releaseDate, rating, classNam
               <Heart className={cn("h-4 w-4", isLiked && "fill-rose-500 text-rose-500")} />
               <span className="sr-only">Like</span>
             </Button>
-            <Button
+            {/* <Button
               variant="ghost"
               size="icon"
               className="h-7 w-7 text-white hover:text-blue-500 hover:bg-transparent"
               onClick={() => handleBookmark(id)}>
               <Bookmark className={cn("h-4 w-4", isBookmarked && "fill-blue-500 text-blue-500")} />
               <span className="sr-only">Bookmark</span>
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>
