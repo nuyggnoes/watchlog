@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchFilteredMovies } from "@/lib/movie/movie";
+import { addLikeStatusToMovies } from "@/lib/movie/withLikes";
 
 export async function GET(req: NextRequest) {
     const url = req.nextUrl.searchParams;
@@ -22,5 +23,11 @@ export async function GET(req: NextRequest) {
         yearMax,
         language,
     });
-    return NextResponse.json(res);
+
+    const moviesWithLikes = await addLikeStatusToMovies(res.movies);
+    
+    return NextResponse.json({
+        ...res,
+        movies: moviesWithLikes,
+    });
 }

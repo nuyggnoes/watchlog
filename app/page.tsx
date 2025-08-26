@@ -2,34 +2,11 @@ import { MovieGrid } from "@/components/movie-grid";
 import { GenreFilter } from "@/components/genre-filter";
 import { HeroSection } from "@/components/hero-section";
 import { fetchPopularMovies } from "@/lib/movie/movie";
-import { createClient } from "@/lib/supabase/serverClient";
-import { Movie } from "@/types/movie";
+import { addLikeStatusToMovies } from "@/lib/movie/withLikes";
 
 export default async function Home() {
-  const supabase = await createClient();
-  const [
-    movies,
-    {
-      data: { user },
-    },
-  ] = await Promise.all([fetchPopularMovies(), supabase.auth.getUser()]);
-
-  let moviesWithLikes = movies;
-
-  if (user) {
-    const { data: likedMovies } = await supabase
-      .from("movie_likes")
-      .select("movie_id, created_at")
-      .eq("user_id", user.id);
-
-    const likedMovieMap = new Map(likedMovies?.map((like) => [like.movie_id, like.created_at]) || []);
-
-    moviesWithLikes = movies.map((movie: Movie) => ({
-      ...movie,
-      isLiked: likedMovieMap.has(movie.id.toString()),
-      likedAt: likedMovieMap.get(movie.id.toString()) || null,
-    }));
-  }
+  const movies = await fetchPopularMovies();
+  const moviesWithLikes = await addLikeStatusToMovies(movies);
 
   return (
     <div className="space-y-8">
