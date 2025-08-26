@@ -25,3 +25,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# md
+CLAUDE.md
+PROJECT_STRUCTURE.md
