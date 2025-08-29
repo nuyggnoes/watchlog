@@ -2,34 +2,44 @@ import { ProfileHeader } from "@/components/profile-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MovieGrid } from "@/components/movie-grid";
 import { ReviewList } from "@/components/review-list";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/serverClient";
+import { fetchMoviesByIds } from "@/lib/movie/movie";
 
 export default async function ProfilePage() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!token) {
-    redirect("/login");
-  }
+  if (!user) return;
+
+  const { data: profile } = await supabase.from("profiles").select("name").eq("user_id", user.id).single();
+
+  const profileUser: ProfileUser = {
+    id: user.id,
+    email: user.email!,
+    name: profile?.name,
+  };
+
+  const { data: likedMovies } = await supabase.from("movie_likes").select("movie_id").eq("user_id", user.id);
+  const movieIds = likedMovies?.map((item) => item.movie_id) || [];
+
+  const movies = await fetchMoviesByIds(movieIds);
+
   return (
     <div className="space-y-8">
-      <ProfileHeader />
+      <ProfileHeader profileUser={profileUser} liked={movies.length} />
 
       <Tabs defaultValue="reviews" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="reviews">My Reviews</TabsTrigger>
           <TabsTrigger value="liked">Liked Movies</TabsTrigger>
-          <TabsTrigger value="watchlist">Watchlist</TabsTrigger>
         </TabsList>
         <TabsContent value="reviews" className="mt-6">
           <ReviewList isUserReviews />
         </TabsContent>
         <TabsContent value="liked" className="mt-6">
-          <MovieGrid filter="liked" />
-        </TabsContent>
-        <TabsContent value="watchlist" className="mt-6">
-          <MovieGrid filter="watchlist" />
+          <MovieGrid movies={movies} />
         </TabsContent>
       </Tabs>
     </div>

@@ -129,3 +129,44 @@ export async function fetchFilteredMovies({
 
     return {movies, totalPages:data.total_pages, totalResults:data.total_results};
 }
+
+export async function fetchMoviesByIds(movieIds: string[]): Promise<Movie[]> {
+    if (!movieIds.length) return [];
+
+    const options = {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${process.env.TMDB_BEARER_TOKEN}`,
+            accept: "application/json",
+        },
+    };
+
+    const movies = await Promise.all(
+        movieIds.map(async (id) => {
+            const res = await fetch(
+                `https://api.themoviedb.org/3/movie/${id}?language=ko-KR`, 
+                options
+            );
+            
+            if (!res.ok) {
+                console.error(`Failed to fetch movie ${id}`);
+                return null;
+            }
+            
+            const movie: TMDBMovie = await res.json();
+            
+            return {
+                id: movie.id.toString(),
+                title: movie.title,
+                posterPath: movie.poster_path
+                    ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
+                    : "/placeholder.svg?height=450&width=300",
+                releaseDate: movie.release_date,
+                rating: movie.vote_average,
+                isLiked: true,
+            };
+        })
+    );
+
+    return movies.filter((movie): movie is Movie => movie !== null);
+}

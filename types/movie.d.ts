@@ -57,6 +57,7 @@ export type Movie = {
     posterPath: string;
     releaseDate: string;
     rating: number;
+    isLiked: boolean;
 };
 
 export type HeroMovie = {
