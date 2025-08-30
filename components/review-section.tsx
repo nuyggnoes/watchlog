@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Star } from "lucide-react"
-import { ReviewCard } from "@/components/review-card"
+import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Star } from "lucide-react";
+import { ReviewCard } from "@/components/review-card";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 interface ReviewSectionProps {
-  movieId: string
+  movieId: string;
 }
 
 export function ReviewSection({ movieId }: ReviewSectionProps) {
-  const [reviewText, setReviewText] = useState("")
-  const [rating, setRating] = useState(0)
+  const [reviewText, setReviewText] = useState("");
+  const [rating, setRating] = useState(0);
+  const requireAuth = useRequireAuth();
 
-  // This would normally fetch data from an API
-  // For demo purposes, we'll use mock data
   const reviews = [
     {
       id: "1",
@@ -51,14 +51,36 @@ export function ReviewSection({ movieId }: ReviewSectionProps) {
       likes: 15,
       replies: 2,
     },
-  ]
+  ];
 
-  const handleSubmitReview = () => {
-    // This would normally send the review to an API
-    console.log({ movieId, rating, reviewText })
-    setReviewText("")
-    setRating(0)
-  }
+  const handleSubmitReview = async () => {
+    const session = await requireAuth();
+    if (!session) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/movies/${movieId}/reviews`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ rating, body: reviewText }),
+      });
+      const json = await res.json();
+
+      if (json.ok) {
+        alert(json.message || "리뷰가 작성되었습니다.");
+        setReviewText("");
+        setRating(0);
+      } else {
+        alert(json.message || "리뷰 작성에 실패했습니다.");
+      }
+    } catch (err) {
+      console.error("Review submission error:", err);
+      alert("네트워크 오류가 발생했습니다.");
+    }
+  };
 
   return (
     <section className="space-y-6">
@@ -104,5 +126,5 @@ export function ReviewSection({ movieId }: ReviewSectionProps) {
         ))}
       </div>
     </section>
-  )
+  );
 }
