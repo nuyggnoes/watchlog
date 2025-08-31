@@ -11,9 +11,9 @@ export async function GET(
 ) {
   const { id } = await params;
   const supabase = await createClient();
-  console.log(id,'get')
 
   try {
+    // 1. 리뷰 데이터 가져오기
     const { data: reviews, error } = await supabase
       .from('movie_reviews')
       .select('*')
@@ -28,9 +28,27 @@ export async function GET(
       );
     }
 
+    // 2. 각 리뷰의 작성자 정보 가져오기
+    const reviewsWithProfiles = await Promise.all(
+      (reviews || []).map(async (review) => {
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('name, profile_image_url')
+          .eq('user_id', review.user_id)
+          .maybeSingle();
+
+        if (profileError) {
+          console.log('Profile error for user_id', review.user_id, ':', profileError);
+        }
+        return {
+          ...review,
+          profiles: profile || { name: 'Anonymous', profile_image_url: null }
+        };
+      })
+    );
     return NextResponse.json({
       ok: true,
-      data: reviews || []
+      data: reviewsWithProfiles
     });
   } catch (error) {
     console.error('Review fetch error:', error);
@@ -90,6 +108,7 @@ export async function POST(
       );
     }
 
+    // 1. 리뷰 생성
     const { data: review, error: insertError } = await supabase
       .from('movie_reviews')
       .insert({
@@ -108,11 +127,32 @@ export async function POST(
         { status: 500 }
       );
     }
+    
+    // 먼저 데이터가 있는지 확인
+    const { data: profileCheck } = await supabase
+      .from('profiles')
+      .select('user_id, name, profile_image_url')
+      .eq('user_id', user.id);
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('name, profile_image_url')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (profileError) {
+      console.log('Profile error for user_id', user.id, ':', profileError);
+    }
+
+    const reviewWithProfile = {
+      ...review,
+      profiles: profile || { name: 'Anonymous', profile_image_url: null }
+    };
 
     return NextResponse.json({
       ok: true,
       message: '리뷰가 작성되었습니다.',
-      data: review
+      data: reviewWithProfile
     });
   } catch (error) {
     console.error('Review creation error:', error);
