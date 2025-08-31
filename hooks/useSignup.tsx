@@ -11,6 +11,7 @@ export function useSignupForm() {
     email: "",
     password: "",
     confirmPassword: "",
+    profileImage: null as File | null,
   });
   const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string }>({});
 
@@ -26,7 +27,7 @@ export function useSignupForm() {
 
   const router = useRouter();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: any } }) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
@@ -35,9 +36,21 @@ export function useSignupForm() {
     e.preventDefault();
     setErrors({});
 
-    const result = await apiRequest(API_ENDPOINTS.USER_SIGNUP, {
+    // FormData로 파일과 함께 전송
+    const formData = new FormData();
+    formData.append("name", form.name);
+    formData.append("email", form.email);
+    formData.append("password", form.password);
+    if (form.profileImage) {
+      formData.append("profileImage", form.profileImage);
+    }
+
+    const result = await fetch(API_ENDPOINTS.USER_SIGNUP, {
       method: HTTP_METHOD.POST,
-      body: { ...form },
+      body: formData,
+    }).then(async (res) => {
+      const data = await res.json();
+      return { ok: res.ok, ...data };
     });
     if (result.ok && result.success) {
       router.push("/");

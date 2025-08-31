@@ -18,7 +18,8 @@ type UserWithOutPassword = Omit<User, 'password'>;
 type ProfileUser = {
     id: string;
     email: string;
-    name: string;
+  name: string;
+    profileImageUrl?: string | null;
 }
 
 type UserState = {

@@ -26,7 +26,7 @@ export function ProfileHeader({ profileUser, liked }: ProfileHeaderProps) {
   return (
     <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
       <Avatar className="w-24 h-24 border-4 border-background">
-        <AvatarImage src="/placeholder.svg?height=96&width=96" alt="User avatar" />
+        <AvatarImage src={profileUser.profileImageUrl || undefined} alt="User avatar" />
         <AvatarFallback>JD</AvatarFallback>
       </Avatar>
 
