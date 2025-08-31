@@ -14,6 +14,7 @@ export async function GET(
   console.log(id,'get')
 
   try {
+    // 1. 리뷰 데이터 가져오기
     const { data: reviews, error } = await supabase
       .from('movie_reviews')
       .select('*')
@@ -28,9 +29,25 @@ export async function GET(
       );
     }
 
+    // 2. 각 리뷰의 작성자 정보 가져오기
+    const reviewsWithProfiles = await Promise.all(
+      (reviews || []).map(async (review) => {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('name, profile_image_url')
+          .eq('user_id', review.user_id)
+          .single();
+
+        return {
+          ...review,
+          profiles: profile
+        };
+      })
+    );
+
     return NextResponse.json({
       ok: true,
-      data: reviews || []
+      data: reviewsWithProfiles
     });
   } catch (error) {
     console.error('Review fetch error:', error);
@@ -90,6 +107,7 @@ export async function POST(
       );
     }
 
+    // 1. 리뷰 생성
     const { data: review, error: insertError } = await supabase
       .from('movie_reviews')
       .insert({
@@ -109,10 +127,22 @@ export async function POST(
       );
     }
 
+    // 2. 작성자 정보 가져오기
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('name, profile_image_url')
+      .eq('user_id', user.id)
+      .single();
+
+    const reviewWithProfile = {
+      ...review,
+      profiles: profile
+    };
+
     return NextResponse.json({
       ok: true,
       message: '리뷰가 작성되었습니다.',
-      data: review
+      data: reviewWithProfile
     });
   } catch (error) {
     console.error('Review creation error:', error);
