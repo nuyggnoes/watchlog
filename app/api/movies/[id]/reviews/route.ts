@@ -11,7 +11,6 @@ export async function GET(
 ) {
   const { id } = await params;
   const supabase = await createClient();
-  console.log(id,'get')
 
   try {
     // 1. 리뷰 데이터 가져오기
@@ -32,19 +31,21 @@ export async function GET(
     // 2. 각 리뷰의 작성자 정보 가져오기
     const reviewsWithProfiles = await Promise.all(
       (reviews || []).map(async (review) => {
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('name, profile_image_url')
           .eq('user_id', review.user_id)
-          .single();
+          .maybeSingle();
 
+        if (profileError) {
+          console.log('Profile error for user_id', review.user_id, ':', profileError);
+        }
         return {
           ...review,
-          profiles: profile
+          profiles: profile || { name: 'Anonymous', profile_image_url: null }
         };
       })
     );
-
     return NextResponse.json({
       ok: true,
       data: reviewsWithProfiles
@@ -126,17 +127,26 @@ export async function POST(
         { status: 500 }
       );
     }
+    
+    // 먼저 데이터가 있는지 확인
+    const { data: profileCheck } = await supabase
+      .from('profiles')
+      .select('user_id, name, profile_image_url')
+      .eq('user_id', user.id);
 
-    // 2. 작성자 정보 가져오기
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('name, profile_image_url')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
+
+    if (profileError) {
+      console.log('Profile error for user_id', user.id, ':', profileError);
+    }
 
     const reviewWithProfile = {
       ...review,
-      profiles: profile
+      profiles: profile || { name: 'Anonymous', profile_image_url: null }
     };
 
     return NextResponse.json({

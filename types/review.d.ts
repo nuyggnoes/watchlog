@@ -15,8 +15,8 @@ export interface CreateReviewRequest {
 }
 
 export interface ReviewWithUser extends Review {
-  user: {
-    id: string;
-    email: string;
+  profiles: {
+    name: string;
+    profile_image_url?: string;
   };
 }

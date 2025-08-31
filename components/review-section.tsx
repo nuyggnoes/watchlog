@@ -7,55 +7,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Star } from "lucide-react";
 import { ReviewCard } from "@/components/review-card";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
-import { Review } from "@/types/review";
+import { ReviewWithUser } from "@/types/review";
 import { createReview } from "@/lib/review/review";
 
 interface ReviewSectionProps {
   movieId: string;
-  initialReviews?: Review[];
+  initialReviews?: ReviewWithUser[];
 }
 
 export function ReviewSection({ movieId, initialReviews = [] }: ReviewSectionProps) {
   const [reviewText, setReviewText] = useState("");
   const [rating, setRating] = useState(0);
-  const [reviews, setReviews] = useState<Review[]>(initialReviews);
+  const [reviews, setReviews] = useState<ReviewWithUser[]>(initialReviews);
   const requireAuth = useRequireAuth();
-
-  // const reviews = [
-  //   {
-  //     id: "1",
-  //     author: "Sarah Johnson",
-  //     avatarUrl: "/placeholder.svg?height=40&width=40",
-  //     rating: 9,
-  //     content:
-  //       "Absolutely stunning visually and narratively. Denis Villeneuve has crafted a sci-fi masterpiece that honors the source material while creating something uniquely cinematic. The performances, especially from Chalamet and Zendaya, are captivating.",
-  //     date: "2024-03-05",
-  //     likes: 42,
-  //     replies: 3,
-  //   },
-  //   {
-  //     id: "2",
-  //     author: "Michael Chen",
-  //     avatarUrl: "/placeholder.svg?height=40&width=40",
-  //     rating: 8,
-  //     content:
-  //       "A worthy sequel that expands on the world-building of the first film. The pacing is much better, and the action sequences are breathtaking. Hans Zimmer's score is once again phenomenal.",
-  //     date: "2024-03-02",
-  //     likes: 28,
-  //     replies: 1,
-  //   },
-  //   {
-  //     id: "3",
-  //     author: "Emma Wilson",
-  //     avatarUrl: "/placeholder.svg?height=40&width=40",
-  //     rating: 7,
-  //     content:
-  //       "While visually impressive, I found some of the character motivations a bit unclear if you haven't read the books. Still, it's a remarkable achievement in filmmaking and definitely worth watching on the big screen.",
-  //     date: "2024-02-28",
-  //     likes: 15,
-  //     replies: 2,
-  //   },
-  // ];
 
   const handleSubmitReview = async () => {
     const session = await requireAuth();

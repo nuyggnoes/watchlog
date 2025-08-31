@@ -4,26 +4,25 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Star, ThumbsUp, MessageSquare } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { Review } from "@/types/review";
+import { ReviewWithUser } from "@/types/review";
 
 interface ReviewCardProps {
-  review: Review;
+  review: ReviewWithUser;
 }
 
 export function ReviewCard({ review }: ReviewCardProps) {
-  const authorName = `TEST USER NAME`;
   return (
     <div className="p-4 border rounded-lg">
       <div className="flex items-start gap-3">
         <Avatar>
-          <AvatarImage src="/placeholder.svg" alt={authorName} />
-          20 + <AvatarFallback>{authorName.substring(0, 2).toUpperCase()}</AvatarFallback>
+          <AvatarImage src={review.profiles?.profile_image_url} alt={review.profiles?.name} />
+          20 + <AvatarFallback>{review.profiles?.name.substring(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
 
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium">{authorName}</p>
+              <p className="font-medium">{review.profiles?.name}</p>
               <div className="flex items-center gap-2 mt-0.5">
                 <div className="flex">
                   {Array.from({ length: 10 }).map((_, i) => (
