@@ -13,12 +13,17 @@ export default async function ProfilePage() {
 
   if (!user) return;
 
-  const { data: profile } = await supabase.from("profiles").select("name").eq("user_id", user.id).single();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("name, profile_image_url")
+    .eq("user_id", user.id)
+    .single();
 
   const profileUser: ProfileUser = {
     id: user.id,
     email: user.email!,
     name: profile?.name,
+    profileImageUrl: profile?.profile_image_url,
   };
 
   const { data: likedMovies } = await supabase.from("movie_likes").select("movie_id").eq("user_id", user.id);
@@ -36,7 +41,7 @@ export default async function ProfilePage() {
           <TabsTrigger value="liked">Liked Movies</TabsTrigger>
         </TabsList>
         <TabsContent value="reviews" className="mt-6">
-          <ReviewList isUserReviews />
+          {/* <ReviewList isUserReviews /> */}
         </TabsContent>
         <TabsContent value="liked" className="mt-6">
           <MovieGrid movies={movies} />

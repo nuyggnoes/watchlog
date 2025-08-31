@@ -5,6 +5,7 @@ import type React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ProfileImageUpload } from "@/components/profile-image-upload";
 
 import { useSignupForm } from "@/hooks/useSignup";
 
@@ -59,6 +60,11 @@ export function SignupForm() {
         <Input id="name" name="name" placeholder="Enter your name" value={form.name} onChange={handleChange} required />
         {errors.name && <p className="text-red-500">{errors.name}</p>}
       </div>
+
+      <ProfileImageUpload
+        value={form.profileImage}
+        onChange={(file) => handleChange({ target: { name: "profileImage", value: file } } as any)}
+      />
 
       <Button type="submit" className="w-full">
         Create Account
