@@ -4,6 +4,44 @@ import { createValidationErrorResponse } from "@/lib/utils/error";
 import { CreateReviewRequest } from "@/types/review";
 import { NextRequest, NextResponse } from "next/server";
 
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const { id } = await params;
+  const supabase = await createClient();
+  console.log(id,'get')
+
+  try {
+    const { data: reviews, error } = await supabase
+      .from('movie_reviews')
+      .select('*')
+      .eq('movie_id', id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Review fetch error:', error);
+      return NextResponse.json(
+        { ok: false, message: '리뷰를 불러오는 중 오류가 발생했습니다.' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+      data: reviews || []
+    });
+  } catch (error) {
+    console.error('Review fetch error:', error);
+    return NextResponse.json(
+      { ok: false, message: '서버 오류가 발생했습니다.' },
+      { status: 500 }
+    );
+  }
+}
+
+
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
