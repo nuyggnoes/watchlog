@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,6 +9,7 @@ import { ReviewCard } from "@/components/review-card";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { ReviewWithUser } from "@/types/review";
 import { createReview } from "@/lib/review/review";
+import { createClient } from "@/lib/supabase/client";
 
 interface ReviewSectionProps {
   movieId: string;
@@ -19,7 +20,58 @@ export function ReviewSection({ movieId, initialReviews = [] }: ReviewSectionPro
   const [reviewText, setReviewText] = useState("");
   const [rating, setRating] = useState(0);
   const [reviews, setReviews] = useState<ReviewWithUser[]>(initialReviews);
+  const [userProfile, setUserProfile] = useState<{ name: string; profile_image_url?: string | null } | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const requireAuth = useRequireAuth();
+  const supabase = createClient();
+
+  useEffect(() => {
+    const checkAuthAndProfile = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        setIsLoggedIn(true);
+        // 프로필 정보 가져오기
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("name, profile_image_url")
+          .eq("user_id", session.user.id)
+          .single();
+
+        setUserProfile(profile || { name: "Anonymous", profile_image_url: null });
+      } else {
+        setIsLoggedIn(false);
+        setUserProfile(null);
+      }
+    };
+
+    checkAuthAndProfile();
+
+    // 인증 상태 변화 감지
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setIsLoggedIn(true);
+        // 프로필 정보 다시 가져오기
+        supabase
+          .from("profiles")
+          .select("name, profile_image_url")
+          .eq("user_id", session.user.id)
+          .single()
+          .then(({ data: profile }) => {
+            setUserProfile(profile || { name: "Anonymous", profile_image_url: null });
+          });
+      } else {
+        setIsLoggedIn(false);
+        setUserProfile(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleSubmitReview = async () => {
     const session = await requireAuth();
@@ -59,11 +111,22 @@ export function ReviewSection({ movieId, initialReviews = [] }: ReviewSectionPro
       <div className="space-y-4 p-4 border rounded-lg">
         <div className="flex items-center gap-2">
           <Avatar>
-            <AvatarImage src="/placeholder.svg?height=40&width=40" alt="Your avatar" />
-            <AvatarFallback>YA</AvatarFallback>
+            <AvatarImage
+              src={
+                isLoggedIn && userProfile?.profile_image_url
+                  ? userProfile.profile_image_url
+                  : "/placeholder.svg?height=40&width=40"
+              }
+              alt={isLoggedIn && userProfile ? `${userProfile.name}'s avatar` : "Your avatar"}
+            />
+            <AvatarFallback>
+              {isLoggedIn && userProfile ? userProfile.name.charAt(0).toUpperCase() : "?"}
+            </AvatarFallback>
           </Avatar>
           <div>
-            <p className="font-medium">Write a review</p>
+            <p className="font-medium">
+              {isLoggedIn && userProfile ? `${userProfile.name}` : "Login for writing a review"}
+            </p>
             <div className="flex mt-1">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
                 <button key={star} type="button" onClick={() => setRating(star)} className="p-0.5">
