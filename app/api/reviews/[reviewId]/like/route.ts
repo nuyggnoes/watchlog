@@ -38,7 +38,7 @@ export async function POST(
       .select('id')
       .eq('review_id', reviewId)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (existingLike) {
       // 좋아요 취소
@@ -126,7 +126,7 @@ export async function GET(
         .select('id')
         .eq('review_id', reviewId)
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       isLiked = !!userLike;
     }

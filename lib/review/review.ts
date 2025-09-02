@@ -1,10 +1,10 @@
-import { ReviewWithUser } from "@/types/review";
+import { ReviewWithLikes } from "@/types/review";
 
 const baseUrl = process.env.NODE_ENV === 'production' 
       ? `https://${process.env.VERCEL_URL}` 
   : 'http://localhost:3000';
       
-export async function fetchMovieReviews(movieId: string): Promise<ReviewWithUser[]> {
+export async function fetchMovieReviews(movieId: string): Promise<ReviewWithLikes[]> {
   try {
 
     const res = await fetch(`${baseUrl}/api/movies/${movieId}/reviews`, {

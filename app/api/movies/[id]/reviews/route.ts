@@ -57,15 +57,27 @@ export async function GET(
 
         // 현재 사용자의 좋아요 상태 확인
         let isLikedByUser = false;
+        console.log('User check - user exists:', !!user, user?.id);
+        
         if (user) {
-          const { data: userLike } = await supabase
+          console.log('Checking likes for review_id:', review.id, 'user_id:', user.id);
+          
+          const { data: userLike, error: userLikeError } = await supabase
             .from('review_likes')
-            .select('id')
+            .select('*')
             .eq('review_id', review.id)
             .eq('user_id', user.id)
-            .single();
+            .maybeSingle();
           
+          console.log('Query result - userLike:', userLike, 'error:', userLikeError);
+          
+          // maybeSingle()은 데이터가 없어도 에러를 발생시키지 않음
           isLikedByUser = !!userLike;
+          console.log('Final isLikedByUser:', isLikedByUser);
+          
+          if (userLikeError) {
+            console.log('User like check error for review_id', review.id, ':', userLikeError);
+          }
         }
 
         return {
@@ -94,7 +106,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { id } = await params;
+  const { id } = params;
   const errors: ErrorType[] = [];
 
   const supabase = await createClient();
