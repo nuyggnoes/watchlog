@@ -12,6 +12,9 @@ export async function GET(
   const { id } = await params;
   const supabase = await createClient();
 
+  // 현재 로그인한 사용자 정보 가져오기 (좋아요 상태 확인용)
+  const { data: { user } } = await supabase.auth.getUser();
+
   try {
     // 1. 리뷰 데이터 가져오기
     const { data: reviews, error } = await supabase
@@ -28,9 +31,10 @@ export async function GET(
       );
     }
 
-    // 2. 각 리뷰의 작성자 정보 가져오기
+    // 2. 각 리뷰의 작성자 정보와 좋아요 정보 가져오기
     const reviewsWithProfiles = await Promise.all(
       (reviews || []).map(async (review) => {
+        // 프로필 정보 가져오기
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('name, profile_image_url')
@@ -40,9 +44,47 @@ export async function GET(
         if (profileError) {
           console.log('Profile error for user_id', review.user_id, ':', profileError);
         }
+
+        // 좋아요 수 가져오기
+        const { count: likesCount, error: likesError } = await supabase
+          .from('review_likes')
+          .select('*', { count: 'exact', head: true })
+          .eq('review_id', review.id);
+
+        if (likesError) {
+          console.log('Likes count error for review_id', review.id, ':', likesError);
+        }
+
+        // 현재 사용자의 좋아요 상태 확인
+        let isLikedByUser = false;
+        console.log('User check - user exists:', !!user, user?.id);
+        
+        if (user) {
+          console.log('Checking likes for review_id:', review.id, 'user_id:', user.id);
+          
+          const { data: userLike, error: userLikeError } = await supabase
+            .from('review_likes')
+            .select('*')
+            .eq('review_id', review.id)
+            .eq('user_id', user.id)
+            .maybeSingle();
+          
+          console.log('Query result - userLike:', userLike, 'error:', userLikeError);
+          
+          // maybeSingle()은 데이터가 없어도 에러를 발생시키지 않음
+          isLikedByUser = !!userLike;
+          console.log('Final isLikedByUser:', isLikedByUser);
+          
+          if (userLikeError) {
+            console.log('User like check error for review_id', review.id, ':', userLikeError);
+          }
+        }
+
         return {
           ...review,
-          profiles: profile || { name: 'Anonymous', profile_image_url: null }
+          profiles: profile || { name: 'Anonymous', profile_image_url: null },
+          likes_count: likesCount || 0,
+          is_liked_by_user: isLikedByUser
         };
       })
     );
@@ -64,7 +106,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { id } = await params;
+  const { id } = params;
   const errors: ErrorType[] = [];
 
   const supabase = await createClient();
@@ -128,11 +170,6 @@ export async function POST(
       );
     }
     
-    // 먼저 데이터가 있는지 확인
-    const { data: profileCheck } = await supabase
-      .from('profiles')
-      .select('user_id, name, profile_image_url')
-      .eq('user_id', user.id);
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')

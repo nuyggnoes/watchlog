@@ -20,3 +20,8 @@ export interface ReviewWithUser extends Review {
     profile_image_url?: string;
   };
 }
+
+export interface ReviewWithLikes extends ReviewWithUser {
+  likes_count: number;
+  is_liked_by_user: boolean;
+}

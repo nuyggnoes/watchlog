@@ -1,14 +1,12 @@
 type ApiSuccessResponse<T> = {
   ok: true;
-  status: number;
-  success: true;
   data?: T;
+  message?: string;
 };
 
 type ApiErrorResponse = {
   ok: false;
-  status: number;
-  success?: false;
+  message: string;
   errors?: Record<string, string>;
   code?: string;
 };

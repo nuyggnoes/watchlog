@@ -7,19 +7,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Star } from "lucide-react";
 import { ReviewCard } from "@/components/review-card";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
-import { ReviewWithUser } from "@/types/review";
+import { ReviewWithLikes } from "@/types/review";
 import { createReview } from "@/lib/review/review";
 import { createClient } from "@/lib/supabase/client";
 
 interface ReviewSectionProps {
   movieId: string;
-  initialReviews?: ReviewWithUser[];
+  initialReviews?: ReviewWithLikes[];
 }
 
 export function ReviewSection({ movieId, initialReviews = [] }: ReviewSectionProps) {
   const [reviewText, setReviewText] = useState("");
   const [rating, setRating] = useState(0);
-  const [reviews, setReviews] = useState<ReviewWithUser[]>(initialReviews);
+  const [reviews, setReviews] = useState<ReviewWithLikes[]>(initialReviews);
   const [userProfile, setUserProfile] = useState<{ name: string; profile_image_url?: string | null } | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const requireAuth = useRequireAuth();
