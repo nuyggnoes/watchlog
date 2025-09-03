@@ -170,3 +170,33 @@ export async function fetchMoviesByIds(movieIds: string[]): Promise<Movie[]> {
 
     return movies.filter((movie): movie is Movie => movie !== null);
 }
+
+export async function fetchSimilarMovies(movieId: string): Promise<Movie[]> {
+    const res = await fetch(
+        `https://api.themoviedb.org/3/movie/${movieId}/similar?language=ko-KR&page=1`,
+        {
+            headers: {
+                Authorization: `Bearer ${process.env.TMDB_BEARER_TOKEN}`,
+                accept: "application/json",
+            },
+        }
+    );
+
+    if (!res.ok) {
+        throw new Error("Failed to fetch similar movies from TMDB");
+    }
+
+    const data = await res.json();
+    
+    return (data.results as TMDBMovie[]).map((movie) => ({
+        id: movie.id.toString(),
+        title: movie.title,
+        posterPath: movie.poster_path
+            ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
+            : "/placeholder.svg?height=450&width=300",
+        releaseDate: movie.release_date,
+        rating: movie.vote_average,
+        isLiked: false,
+        isBookmarked: false,
+    }));
+}
