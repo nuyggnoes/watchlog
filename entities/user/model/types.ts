@@ -1,1 +1,1 @@
-export type { User } from "./schema";
+export type { AuthUser, UserProfile, User } from "./schema";
