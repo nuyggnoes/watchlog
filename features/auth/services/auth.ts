@@ -23,4 +23,18 @@ export class AuthService {
       return { success: false, error: BaseErrorType.UNEXPECTED_ERROR };
     }
   }
+
+  async logout() {
+    try {
+      const supabase = await createClient();
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        return { success: false, error: BaseErrorType.UNEXPECTED_ERROR };
+      }
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: BaseErrorType.UNEXPECTED_ERROR };
+    }
+  }
 }
