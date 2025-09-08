@@ -12,6 +12,7 @@ export const UserProfileSchema = z.object({
   id: z.string(),
   user_id: z.string(),
   name: z.string().min(1, "사용자명을 입력해주세요."),
+  email: z.string().email("유효한 이메일을 입력해주세요."),
   created_at: z.string(),
   updated_at: z.string(),
   profile_image_url: z.string().url("유효하지 않은 URL입니다.").nullish(),
