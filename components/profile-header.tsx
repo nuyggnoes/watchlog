@@ -1,11 +1,8 @@
 "use client";
 
-import { HTTP_METHOD } from "@/app/api/constants";
-import { API_ENDPOINTS } from "@/app/api/endpoints";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { apiRequest } from "@/lib/utils/api";
-import { useUserState } from "@/stores/userStore";
+import { logoutAction } from "@/features/auth/actions/logout-action";
 import { Settings, Star, Heart } from "lucide-react";
 
 interface ProfileHeaderProps {
@@ -14,14 +11,8 @@ interface ProfileHeaderProps {
 }
 
 export function ProfileHeader({ profileUser, liked }: ProfileHeaderProps) {
-  const logout = useUserState((s) => s.logout);
-
   const handleLogout = async () => {
-    await apiRequest(API_ENDPOINTS.USER_LOGOUT, {
-      method: HTTP_METHOD.POST,
-    });
-    logout();
-    window.location.replace("/");
+    await logoutAction();
   };
   return (
     <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
