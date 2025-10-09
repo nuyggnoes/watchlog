@@ -7,6 +7,9 @@ export interface ActionState {
   errors?: {
     [field: string]: string;
   };
+  values?: {
+    [field: string]: string;
+  };
 }
 
 export class ActionErrorHandler {
