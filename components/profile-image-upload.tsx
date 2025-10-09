@@ -23,23 +23,30 @@ export function ProfileImageUpload({ value, onChange, disabled }: ProfileImageUp
       // 파일 크기 체크 (5MB 이하)
       if (file.size > 5 * 1024 * 1024) {
         alert("파일 크기는 5MB 이하여야 합니다.");
+        event.target.value = "";
         return;
       }
 
       // 이미지 파일 타입 체크
       if (!file.type.startsWith("image/")) {
         alert("이미지 파일만 업로드 가능합니다.");
+        event.target.value = "";
         return;
       }
 
+      console.log("ProfileImageUpload onChange called with file:", file.name);
       onChange(file);
-      
+
       // 미리보기 생성
       const reader = new FileReader();
       reader.onload = (e) => {
         setPreview(e.target?.result as string);
       };
       reader.readAsDataURL(file);
+    } else {
+      // 파일이 선택되지 않은 경우
+      onChange(null);
+      setPreview(null);
     }
   };
 
@@ -58,7 +65,7 @@ export function ProfileImageUpload({ value, onChange, disabled }: ProfileImageUp
   return (
     <div className="space-y-4">
       <Label>Profile Photo</Label>
-      
+
       <div className="flex items-center gap-4">
         {/* 프로필 이미지 미리보기 */}
         <div className="relative">
@@ -68,7 +75,7 @@ export function ProfileImageUpload({ value, onChange, disabled }: ProfileImageUp
               <Camera className="h-8 w-8 text-muted-foreground" />
             </AvatarFallback>
           </Avatar>
-          
+
           {preview && (
             <Button
               type="button"
@@ -76,8 +83,7 @@ export function ProfileImageUpload({ value, onChange, disabled }: ProfileImageUp
               size="sm"
               className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
               onClick={handleRemove}
-              disabled={disabled}
-            >
+              disabled={disabled}>
               <X className="h-3 w-3" />
             </Button>
           )}
@@ -85,31 +91,19 @@ export function ProfileImageUpload({ value, onChange, disabled }: ProfileImageUp
 
         {/* 업로드 버튼들 */}
         <div className="flex flex-col gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={triggerFileSelect}
-            disabled={disabled}
-          >
+          <Button type="button" variant="outline" size="sm" onClick={triggerFileSelect} disabled={disabled}>
             {preview ? "Change Photo" : "Upload Photo"}
           </Button>
-          
+
           {preview && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleRemove}
-              disabled={disabled}
-            >
+            <Button type="button" variant="ghost" size="sm" onClick={handleRemove} disabled={disabled}>
               Remove
             </Button>
           )}
         </div>
       </div>
 
-      {/* 숨겨진 파일 입력 */}
+      {/* 숨겨진 파일 입력 (UI용, form 제출용이 아님) */}
       <Input
         ref={fileInputRef}
         type="file"
@@ -118,10 +112,8 @@ export function ProfileImageUpload({ value, onChange, disabled }: ProfileImageUp
         className="hidden"
         disabled={disabled}
       />
-      
-      <p className="text-sm text-muted-foreground">
-        JPG, PNG or GIF. Max 5MB.
-      </p>
+
+      <p className="text-sm text-muted-foreground">JPG, PNG or GIF. Max 5MB.</p>
     </div>
   );
 }
