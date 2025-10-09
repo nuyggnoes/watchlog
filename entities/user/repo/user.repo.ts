@@ -4,7 +4,7 @@ import type { UserProfile } from "../model/types";
 export class UserRepository {
   async findById(userId: string) {
     const supabase = await createClient();
-    return supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle();
+    return supabase.from("profiles").select("email, name, profile_image_url").eq("user_id", userId).maybeSingle();
   }
 
   async findByEmail(email: string) {
