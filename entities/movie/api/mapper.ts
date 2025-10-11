@@ -1,5 +1,5 @@
 import { buildImageUrl } from "../lib/image-url";
-import { Movie } from "../model/types";
+import { HeroMovie, Movie } from "../model/types";
 import { TMDBMovie, TMDBMovieDetail } from "./tmdb-types";
 
 export function mapTMDBMovie(tmdb: TMDBMovie): Movie {
@@ -23,5 +23,15 @@ export function mapTMDBMovieDetail(tmdb: TMDBMovieDetail) {
     runtime: tmdb.runtime,
     rating: tmdb.vote_average,
     genres: tmdb.genres.map((genre) => genre.name),
+  };
+}
+
+export function mapTMDBMovieToHero(tmdb: TMDBMovie): Omit<HeroMovie, "trailerUrl"> {
+  return {
+    id: tmdb.id.toString(),
+    title: tmdb.title,
+    overview: tmdb.overview,
+    backdropPath: buildImageUrl(tmdb.backdrop_path, "original"),
+    rating: tmdb.vote_average,
   };
 }

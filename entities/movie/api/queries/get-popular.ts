@@ -17,3 +17,12 @@ export async function getPopularMovies(page = 1): Promise<Movie[]> {
 
   return data.results.map(mapTMDBMovie);
 }
+
+export async function getPopularMoviesRaw(page = 1): Promise<TMDBMovie[]> {
+  const data = await tmdbFetch<PopularMoviesResponse>("/movie/popular", {
+    language: "ko-KR",
+    page: String(page),
+  });
+
+  return data.results;
+}
