@@ -1,5 +1,5 @@
 import { MovieCard } from "@/components/movie-card";
-import type { Movie } from "@/types/movie";
+import { Movie } from "@/entities/movie";
 
 interface Props {
   movies: Movie[];
