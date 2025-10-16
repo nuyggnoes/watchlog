@@ -1,12 +1,14 @@
 import { MovieGrid } from "@/components/movie-grid";
 import { GenreFilter } from "@/components/genre-filter";
 import { HeroSection } from "@/components/hero-section";
-import { fetchPopularMovies } from "@/lib/movie/movie";
-import { addLikeStatusToMovies } from "@/lib/movie/withLikes";
+import { getCurrentUser } from "@/features/auth/services/session";
+import { getUserLikes } from "@/features/movie-like/api/get-user-likes";
+import { getPopularMovies } from "@/entities/movie";
 
 export default async function Home() {
-  const movies = await fetchPopularMovies();
-  const moviesWithLikes = await addLikeStatusToMovies(movies);
+  const user = await getCurrentUser();
+  const movies = await getPopularMovies();
+  const userLikes = user ? await getUserLikes(user.id) : new Set<string>();
 
   return (
     <div className="space-y-8">
@@ -16,7 +18,7 @@ export default async function Home() {
           <h2 className="text-2xl font-bold">Popular Movies</h2>
           {/* <GenreFilter /> */}
         </div>
-        <MovieGrid movies={moviesWithLikes} />
+        <MovieGrid movies={movies} userLikes={userLikes} />
       </section>
     </div>
   );
