@@ -1,8 +1,8 @@
 import { buildTMDBQueryParams } from "../lib/filter-utils";
 import { FilteredMoviesResult, MovieFilters } from "../model/filter-types";
-import { mapTMDBMovie } from "../../../../entities/movie/api/mapper";
-import { tmdbFetch } from "../../../../entities/movie/api/tmdb-client";
-import { TMDBMovie } from "../../../../entities/movie/api/tmdb-types";
+import { mapTMDBMovie } from "../../../../entities/movie/lib/mapper";
+import { tmdbFetch } from "../../../../entities/movie/lib/tmdbClient";
+import { TMDBMovie } from "../../../../entities/movie/lib/tmdbTypes";
 
 type TMDBDiscoverResponse = {
   page: number;
