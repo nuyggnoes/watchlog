@@ -8,6 +8,6 @@ export type {
 
 export { DEFAULT_FILTERS, SORT_OPTIONS, LANGUAGES, SORT_BY_MAP } from "./model/filter-constants";
 
-export { getFilteredMovies } from "./api/get-filtered-movies";
+export { getFilteredMovies } from "./api/getFilteredMovies";
 
 export { parseFiltersFromParams, buildFilterParams, buildTMDBQueryParams, isDefaultFilters } from "./lib/filter-utils";
