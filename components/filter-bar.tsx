@@ -15,41 +15,32 @@ import {
 } from "@/components/ui/sheet";
 import { SlidersHorizontal, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { getYear } from "@/lib/date";
-
-interface Filters {
-  sortBy: string;
-  ratingRange: [number, number];
-  yearRange: [number, number];
-  language: string;
-}
+import {
+  DEFAULT_FILTERS,
+  LanguageCode,
+  LANGUAGES,
+  MovieFilters,
+  SORT_OPTIONS,
+  SortOption,
+} from "@/features/movie/filter-movie";
 
 interface FilterBarProps {
-  sort: string;
-  onSortChange: (value: string) => void;
-  filters: Filters;
-  onApplyFilters: (filters: Filters) => void;
+  filters: MovieFilters;
+  onApplyFilters: (filters: MovieFilters) => void;
 }
 
-export function FilterBar({ sort, filters, onSortChange, onApplyFilters }: FilterBarProps) {
+export function FilterBar({ filters, onApplyFilters }: FilterBarProps) {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [draftFilters, setDraftFilters] = useState(filters);
-  const year = getYear();
 
-  const updateDraft = (field: keyof Filters, value: any) => {
+  const updateDraft = (field: keyof MovieFilters, value: any) => {
     setDraftFilters((prev) => ({ ...prev, [field]: value }));
   };
 
   const clearFilters = () => {
-    const reset: Filters = {
-      sortBy: "popularity",
-      ratingRange: [0, 10],
-      yearRange: [year - 3, year],
-      language: "",
-    };
-    setDraftFilters(reset);
+    setDraftFilters(DEFAULT_FILTERS);
     setActiveFilters([]);
-    onApplyFilters(reset);
+    onApplyFilters(DEFAULT_FILTERS);
   };
 
   const removeFilter = (filter: string) => {
@@ -58,13 +49,13 @@ export function FilterBar({ sort, filters, onSortChange, onApplyFilters }: Filte
     const updated = { ...draftFilters };
 
     if (filter.startsWith("Sort:")) {
-      updated.sortBy = "popularity";
+      updated.sortBy = DEFAULT_FILTERS.sortBy;
     } else if (filter.startsWith("Rating:")) {
-      updated.ratingRange = [0, 10];
+      updated.ratingRange = DEFAULT_FILTERS.ratingRange;
     } else if (filter.startsWith("Year:")) {
-      updated.yearRange = [1970, 2025];
+      updated.yearRange = DEFAULT_FILTERS.yearRange;
     } else if (filter.startsWith("Lang:")) {
-      updated.language = "";
+      updated.language = DEFAULT_FILTERS.language;
     }
 
     setDraftFilters(updated);
@@ -73,12 +64,42 @@ export function FilterBar({ sort, filters, onSortChange, onApplyFilters }: Filte
 
   const handleFilter = () => {
     onApplyFilters(draftFilters);
-    setActiveFilters([
-      `Sort: ${draftFilters.sortBy}`,
-      `Rating: ${draftFilters.ratingRange.join(" ~ ")}`,
-      `Year: ${draftFilters.yearRange.join(" ~ ")}`,
-      `Lang: ${draftFilters.language}`,
-    ]);
+    const newActiveFilters: string[] = [];
+
+    // Sort 표시
+    const sortLabel = SORT_OPTIONS.find((opt) => opt.value === draftFilters.sortBy)?.label || draftFilters.sortBy;
+    if (draftFilters.sortBy !== DEFAULT_FILTERS.sortBy) {
+      newActiveFilters.push(`Sort: ${sortLabel}`);
+    }
+
+    // Rating 표시
+    if (
+      draftFilters.ratingRange[0] !== DEFAULT_FILTERS.ratingRange[0] ||
+      draftFilters.ratingRange[1] !== DEFAULT_FILTERS.ratingRange[1]
+    ) {
+      newActiveFilters.push(`Rating: ${draftFilters.ratingRange.join(" ~ ")}`);
+    }
+
+    // Year 표시
+    if (
+      draftFilters.yearRange[0] !== DEFAULT_FILTERS.yearRange[0] ||
+      draftFilters.yearRange[1] !== DEFAULT_FILTERS.yearRange[1]
+    ) {
+      newActiveFilters.push(`Year: ${draftFilters.yearRange.join(" ~ ")}`);
+    }
+
+    // Language 표시
+    if (draftFilters.language && draftFilters.language !== DEFAULT_FILTERS.language) {
+      const langLabel = LANGUAGES.find((lang) => lang.value === draftFilters.language)?.label || draftFilters.language;
+      newActiveFilters.push(`Lang: ${langLabel}`);
+    }
+
+    setActiveFilters(newActiveFilters);
+  };
+
+  const handleQuickSort = (sortBy: SortOption) => {
+    const updated = { ...filters, sortBy, page: 1 };
+    onApplyFilters(updated);
   };
 
   return (
@@ -101,18 +122,16 @@ export function FilterBar({ sort, filters, onSortChange, onApplyFilters }: Filte
               <div className="py-6 space-y-6">
                 <div className="space-y-2">
                   <h3 className="text-sm font-medium">Sort By</h3>
-                  <Select
-                    defaultValue="popularity"
-                    value={draftFilters.sortBy}
-                    onValueChange={(val) => updateDraft("sortBy", val)}>
+                  <Select value={draftFilters.sortBy} onValueChange={(val) => updateDraft("sortBy", val as SortOption)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="popularity">Popularity</SelectItem>
-                      <SelectItem value="rating">Rating (High to Low)</SelectItem>
-                      <SelectItem value="release_date">Release Date (New to Old)</SelectItem>
-                      <SelectItem value="title">Title (A-Z)</SelectItem>
+                      {SORT_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -125,12 +144,11 @@ export function FilterBar({ sort, filters, onSortChange, onApplyFilters }: Filte
                     </span>
                   </div>
                   <Slider
-                    defaultValue={[0, 10]}
                     min={0}
                     max={10}
                     step={1}
                     value={draftFilters.ratingRange}
-                    onValueChange={(val) => updateDraft("ratingRange", val)}
+                    onValueChange={(val) => updateDraft("ratingRange", val as [number, number])}
                   />
                 </div>
 
@@ -142,30 +160,28 @@ export function FilterBar({ sort, filters, onSortChange, onApplyFilters }: Filte
                     </span>
                   </div>
                   <Slider
-                    defaultValue={[1970, 2025]}
                     min={1900}
                     max={2025}
                     step={1}
                     value={draftFilters.yearRange}
-                    onValueChange={(val) => updateDraft("yearRange", val)}
+                    onValueChange={(val) => updateDraft("yearRange", val as [number, number])}
                   />
                 </div>
 
                 <div className="space-y-2">
                   <h3 className="text-sm font-medium">Language</h3>
                   <Select
-                    defaultValue="ko"
                     value={draftFilters.language}
-                    onValueChange={(val) => updateDraft("language", val)}>
+                    onValueChange={(val) => updateDraft("language", val as LanguageCode)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Language" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="en">English</SelectItem>
-                      <SelectItem value="ko">Korean</SelectItem>
-                      <SelectItem value="ja">Japanese</SelectItem>
-                      <SelectItem value="fr">French</SelectItem>
-                      <SelectItem value="es">Spanish</SelectItem>
+                      {LANGUAGES.map((lang) => (
+                        <SelectItem key={lang.value} value={lang.value}>
+                          {lang.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -180,20 +196,20 @@ export function FilterBar({ sort, filters, onSortChange, onApplyFilters }: Filte
             </SheetContent>
           </Sheet>
 
-          <Select defaultValue="popularity" value={sort} onValueChange={onSortChange}>
+          {/* Quick Sort */}
+          <Select value={filters.sortBy} onValueChange={(val) => handleQuickSort(val as SortOption)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="popularity">Popularity</SelectItem>
-              <SelectItem value="rating">Rating (High to Low)</SelectItem>
-              <SelectItem value="release_date">Release Date (New to Old)</SelectItem>
-              <SelectItem value="title">Title (A-Z)</SelectItem>
+              {SORT_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
-
-        {/* <div className="text-sm text-muted-foreground">1,245 movies</div> */}
       </div>
 
       {activeFilters.length > 0 && (

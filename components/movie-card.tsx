@@ -1,59 +1,19 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Bookmark, Heart } from "lucide-react";
+import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import type { Movie } from "@/types/movie";
-import { useState, useEffect } from "react";
-import { useRequireAuth } from "@/hooks/useRequireAuth";
+import type { Movie } from "@/entities/movie/model/types";
+import { LikeButton } from "@/features/movie-like/ui/like-button";
 
-interface MovieCardProps extends Movie {
-  className?: string;
+interface MovieCardProps {
+  movie: Movie;
   isLiked?: boolean;
+  className?: string;
 }
 
-export function MovieCard({
-  id,
-  title,
-  posterPath,
-  releaseDate,
-  rating,
-  className,
-  isLiked: initialIsLiked = false,
-}: MovieCardProps) {
+export function MovieCard({ movie, isLiked = false, className }: MovieCardProps) {
+  const { id, title, posterPath, releaseDate, rating } = movie;
   const year = releaseDate ? new Date(releaseDate).getFullYear() : "Unknown";
-  const [isLiked, setIsLiked] = useState(initialIsLiked);
-  const requireAuth = useRequireAuth();
-
-  useEffect(() => {
-    setIsLiked(initialIsLiked);
-  }, [initialIsLiked]);
-
-  const handleLike = async (id: string) => {
-    const session = await requireAuth();
-    if (!session) return;
-
-    const previousState = isLiked;
-
-    setIsLiked(!isLiked);
-
-    try {
-      const res = await fetch(`/api/movies/${id}/like`, { method: "POST" });
-      const json = await res.json();
-
-      if (!json.ok) {
-        setIsLiked(previousState);
-        console.error("좋아요 처리 실패:", json.message);
-      } else {
-        setIsLiked(json.isLiked);
-      }
-    } catch (error) {
-      setIsLiked(previousState);
-      console.error("네트워크 오류:", error);
-    }
-  };
 
   return (
     <div className={cn("group relative overflow-hidden rounded-lg", className)}>
@@ -83,22 +43,7 @@ export function MovieCard({
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 text-white hover:text-rose-500 hover:bg-transparent"
-              onClick={() => handleLike(id)}>
-              <Heart className={cn("h-4 w-4", isLiked && "fill-rose-500 text-rose-500")} />
-              <span className="sr-only">Like</span>
-            </Button>
-            {/* <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 text-white hover:text-blue-500 hover:bg-transparent"
-              onClick={() => handleBookmark(id)}>
-              <Bookmark className={cn("h-4 w-4", isBookmarked && "fill-blue-500 text-blue-500")} />
-              <span className="sr-only">Bookmark</span>
-            </Button> */}
+            <LikeButton movieId={id} initialIsLiked={isLiked} />
           </div>
         </div>
       </div>
