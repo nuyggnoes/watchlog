@@ -1,7 +1,7 @@
-import { Movie } from "../../model/types";
-import { mapTMDBMovie } from "../mapper";
-import { tmdbFetch } from "../tmdb-client";
-import { TMDBMovie } from "../tmdb-types";
+import { Movie } from "../model/types";
+import { mapTMDBMovie } from "../lib/mapper";
+import { tmdbFetch } from "../lib/tmdbClient";
+import { TMDBMovie } from "../lib/tmdbTypes";
 
 interface SimilarMovieResponse {
   results: TMDBMovie[];

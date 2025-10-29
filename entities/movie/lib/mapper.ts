@@ -1,6 +1,6 @@
-import { buildImageUrl } from "../lib/image-url";
-import { HeroMovie, Movie } from "../model/types";
-import { TMDBMovie, TMDBMovieDetail } from "./tmdb-types";
+import { buildImageUrl } from "./image-url";
+import { Movie } from "../model/types";
+import { TMDBCredits, TMDBMovie, TMDBMovieDetail } from "./tmdbTypes";
 
 export function mapTMDBMovie(tmdb: TMDBMovie): Movie {
   return {
@@ -26,12 +26,19 @@ export function mapTMDBMovieDetail(tmdb: TMDBMovieDetail) {
   };
 }
 
-export function mapTMDBMovieToHero(tmdb: TMDBMovie): Omit<HeroMovie, "trailerUrl"> {
-  return {
-    id: tmdb.id.toString(),
-    title: tmdb.title,
-    overview: tmdb.overview,
-    backdropPath: buildImageUrl(tmdb.backdrop_path, "original"),
-    rating: tmdb.vote_average,
+export function mapTMDBMovieCredits(data: TMDBCredits) {
+  const directorInfo = data.crew.find((p) => p.job === "Director");
+
+  const director = {
+    name: directorInfo?.name ?? "Unknown",
+    profile: buildImageUrl(directorInfo?.profile_path, "w300", "/placeholder-profile.png"),
   };
+
+  const cast = data.cast.map((p) => ({
+    name: p.name,
+    character: p.character,
+    profile: buildImageUrl(p.profile_path, "w300", "/placeholder-profile.png"),
+  }));
+
+  return { director, cast };
 }

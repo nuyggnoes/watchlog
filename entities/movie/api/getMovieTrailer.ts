@@ -1,4 +1,4 @@
-import { tmdbFetch } from "../tmdb-client";
+import { tmdbFetch } from "../lib/tmdbClient";
 
 type TMDBVideoResponse = {
   results: {
