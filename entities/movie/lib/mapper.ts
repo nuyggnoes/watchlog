@@ -1,5 +1,5 @@
 import { buildImageUrl } from "./image-url";
-import { Movie } from "../model/types";
+import { Movie, MovieDetail, HeroMovie } from "../model/types";
 import { TMDBCredits, TMDBMovie, TMDBMovieDetail } from "./tmdbTypes";
 
 export function mapTMDBMovie(tmdb: TMDBMovie): Movie {
@@ -41,4 +41,15 @@ export function mapTMDBMovieCredits(data: TMDBCredits) {
   }));
 
   return { director, cast };
+}
+
+export function mapMovieDetailToHero(movieDetail: MovieDetail, trailerKey: string | null): HeroMovie {
+  return {
+    id: movieDetail.id,
+    title: movieDetail.title,
+    overview: movieDetail.overview,
+    backdropPath: movieDetail.backdropPath,
+    rating: movieDetail.rating,
+    trailerUrl: trailerKey ? `https://www.youtube.com/embed/${trailerKey}` : null,
+  };
 }
